@@ -11,7 +11,8 @@ public class ImplBarang implements BarangService {
     static List<Barang> listBarang = new ArrayList<>();
     @Override
     public Barang save(Barang obj) {
-        obj.setId(1L);
+        Long id = (long) (Math.random() * 50 + 1);
+        obj.setId(id);
         listBarang.add(obj);
         return obj;
     }
@@ -21,10 +22,11 @@ public class ImplBarang implements BarangService {
         for(Barang data : listBarang){
             if(obj.getId() == data.getId()){
                 Barang update = new Barang();
-                update.setNama(data.getNama());
-                update.setId(data.getId());
-                update.setSatuan(data.getSatuan());
-                update.setStok(data.getStok());
+                update.setNama(obj.getNama());
+                update.setId(obj.getId());
+                update.setSatuan(obj.getSatuan());
+                update.setStok(obj.getStok());
+                update.setHarga(obj.getHarga());
                 listBarang.remove(data);
                 listBarang.add(update);
                 return update;
@@ -42,6 +44,7 @@ public class ImplBarang implements BarangService {
                 update.setId(data.getId());
                 update.setSatuan(data.getSatuan());
                 update.setStok(data.getStok());
+                update.setHarga(data.getHarga());
                 listBarang.remove(data);
 
                 return listBarang;
