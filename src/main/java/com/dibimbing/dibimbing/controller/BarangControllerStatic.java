@@ -1,7 +1,7 @@
 package com.dibimbing.dibimbing.controller;
 
 import com.dibimbing.dibimbing.model.Barang;
-import com.dibimbing.dibimbing.service.BarangService;
+import com.dibimbing.dibimbing.service.BarangServiceStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,10 +11,10 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/v1/view/barang")
-public class BarangController {
+public class BarangControllerStatic {
 
     @Autowired
-    public BarangService barangService;
+    public BarangServiceStatic barangServiceStatic;
 
     private final int ROW_PER_PAGE = 5;
 
@@ -29,7 +29,7 @@ public class BarangController {
     @GetMapping(value = "/list")
     public String getBarang(Model model,
                             @RequestParam(value = "page", defaultValue = "1") int pageNumber) {
-        List<Barang> barangs = barangService.dataMhs(pageNumber, ROW_PER_PAGE);
+        List<Barang> barangs = barangServiceStatic.dataMhs(pageNumber, ROW_PER_PAGE);
 
         long count = barangs== null ? 1 :barangs.size();
         boolean hasPrev = pageNumber > 1;
@@ -56,7 +56,7 @@ public class BarangController {
                             @ModelAttribute("barang") Barang barang) {
         try {
             System.out.println("nilai barnag barang=" + barang.getNama());
-            Barang newBarang = barangService.save(barang);
+            Barang newBarang = barangServiceStatic.save(barang);
             return "redirect:/v1/view/barang/" + String.valueOf(newBarang.getId());
         } catch (Exception ex) {
 
@@ -70,7 +70,7 @@ public class BarangController {
     @GetMapping(value = {"/{barangId}/edit"})
     public String showEditBarang(Model model, @PathVariable long barangId) {
         Barang barang = null;
-        barang = barangService.findById(barangId);
+        barang = barangServiceStatic.findById(barangId);
         model.addAttribute("add", false);
         model.addAttribute("barang", barang);
         return "barang-edit";
@@ -82,7 +82,7 @@ public class BarangController {
                                @ModelAttribute("barang") Barang barang) {
         try {
             barang.setId(barangId);
-            barangService.update(barang);
+            barangServiceStatic.update(barang);
             return "redirect:/v1/view/barang/" + String.valueOf(barang.getId());
         } catch (Exception ex) {
             // log exception first,
@@ -98,7 +98,7 @@ public class BarangController {
     @GetMapping(value = "/{barangId}")
     public String getBarangById(Model model, @PathVariable long barangId) {
         Barang barang = null;
-        barang = barangService.findById(barangId);
+        barang = barangServiceStatic.findById(barangId);
         model.addAttribute("barang", barang);
         return "barang";
     }
@@ -108,7 +108,7 @@ public class BarangController {
     public String showDeleteBarangById(
             Model model, @PathVariable long barangId) {
         Barang barang = null;
-        barang = barangService.findById(barangId);
+        barang = barangServiceStatic.findById(barangId);
         model.addAttribute("allowDelete", true);
         model.addAttribute("barang", barang);
         return "barang";
@@ -117,7 +117,7 @@ public class BarangController {
     @PostMapping(value = {"/{barangId}/delete"})
     public String deleteBarangById(
             Model model, @PathVariable long barangId) {
-        barangService.deleted(barangId);
+        barangServiceStatic.deleted(barangId);
         return "redirect:/v1/view/barang/list";
     }
 }

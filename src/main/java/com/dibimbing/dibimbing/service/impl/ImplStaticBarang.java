@@ -1,13 +1,13 @@
 package com.dibimbing.dibimbing.service.impl;
 
 import com.dibimbing.dibimbing.model.Barang;
-import com.dibimbing.dibimbing.service.BarangService;
+import com.dibimbing.dibimbing.service.BarangServiceStatic;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 @Service
-public class ImplBarang implements BarangService {
+public class ImplStaticBarang implements BarangServiceStatic {
     static List<Barang> listBarang = new ArrayList<>();
     @Override
     public Barang save(Barang obj) {
