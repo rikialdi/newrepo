@@ -63,6 +63,7 @@ public class BarangImpl implements BarangService {
         try {
             Pageable show_data = PageRequest.of(page, size);
             Page<Barang> list = barangRepository.getAllData(show_data);
+            System.out.println("chek data saya +"+list.getContent());
             return templateResponse.templateSukses(list);
         } catch (Exception e) {
             log.error("ada eror di method getAll:" + e);

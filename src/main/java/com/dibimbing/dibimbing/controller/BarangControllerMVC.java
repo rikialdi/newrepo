@@ -1,20 +1,30 @@
 package com.dibimbing.dibimbing.controller;
 
+
+
 import com.dibimbing.dibimbing.model.Barang;
-import com.dibimbing.dibimbing.service.BarangServiceStatic;
+import com.dibimbing.dibimbing.repository.BarangRepository;
+import com.dibimbing.dibimbing.service.BarangService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
-@RequestMapping("/v2/view/barang")
-public class BarangControllerStatic {
+@RequestMapping("/v1/view/barang")
+public class BarangControllerMVC{
 
     @Autowired
-    public BarangServiceStatic barangServiceStatic;
+    public BarangRepository repoBarang;
+
+    @Autowired
+    public BarangService serviceBarang;
+
 
     private final int ROW_PER_PAGE = 5;
 
@@ -22,16 +32,20 @@ public class BarangControllerStatic {
     @GetMapping(value = {"/", "/index"})
     public String index(Model model) {
         model.addAttribute("title", "Title Saya");
-        return "index";//nama file html
+        return "index";
     }
 
 
     @GetMapping(value = "/list")
     public String getBarang(Model model,
-                            @RequestParam(value = "page", defaultValue = "1") int pageNumber) {
-        List<Barang> barangs = barangServiceStatic.dataMhs(pageNumber, ROW_PER_PAGE);
+                            @RequestParam(value = "page", defaultValue = "0") int pageNumber) {
+        Map data = serviceBarang.getAll( ROW_PER_PAGE,pageNumber);
+        Object data1 =   data.get("data");
 
-        long count = barangs== null ? 1 :barangs.size();
+        Page<Barang> data2 = (Page<Barang>) data1;
+
+        List<Barang> barangs =    data2.getContent();
+        long count = repoBarang.count();
         boolean hasPrev = pageNumber > 1;
         boolean hasNext = (pageNumber * ROW_PER_PAGE) < count;
         model.addAttribute("barangs", barangs);
@@ -56,12 +70,16 @@ public class BarangControllerStatic {
                             @ModelAttribute("barang") Barang barang) {
         try {
             System.out.println("nilai barnag barang=" + barang.getNama());
-            Barang newBarang = barangServiceStatic.save(barang);
+            Map data = serviceBarang.insert(barang);
+            Barang newBarang = (Barang) data.get("data");
             return "redirect:/v1/view/barang/" + String.valueOf(newBarang.getId());
         } catch (Exception ex) {
-
+            // log exception first,
+            // then show error
             String errorMessage = ex.getMessage();
             model.addAttribute("errorMessage", errorMessage);
+
+            //model.addAttribute("barang", barang);
             model.addAttribute("add", true);
             return "barang-edit";
         }
@@ -70,7 +88,11 @@ public class BarangControllerStatic {
     @GetMapping(value = {"/{barangId}/edit"})
     public String showEditBarang(Model model, @PathVariable long barangId) {
         Barang barang = null;
-        barang = barangServiceStatic.findById(barangId);
+        try {
+            barang = repoBarang.getbyID(barangId);
+        } catch (ResourceNotFoundException ex) {
+            model.addAttribute("errorMessage", "Barang not found");
+        }
         model.addAttribute("add", false);
         model.addAttribute("barang", barang);
         return "barang-edit";
@@ -82,7 +104,7 @@ public class BarangControllerStatic {
                                @ModelAttribute("barang") Barang barang) {
         try {
             barang.setId(barangId);
-            barangServiceStatic.update(barang);
+            serviceBarang.update(barang);
             return "redirect:/v1/view/barang/" + String.valueOf(barang.getId());
         } catch (Exception ex) {
             // log exception first,
@@ -98,7 +120,11 @@ public class BarangControllerStatic {
     @GetMapping(value = "/{barangId}")
     public String getBarangById(Model model, @PathVariable long barangId) {
         Barang barang = null;
-        barang = barangServiceStatic.findById(barangId);
+        try {
+            barang = repoBarang.getbyID(barangId);
+        } catch (ResourceNotFoundException ex) {
+            model.addAttribute("errorMessage", "Barang not found");
+        }
         model.addAttribute("barang", barang);
         return "barang";
     }
@@ -108,7 +134,11 @@ public class BarangControllerStatic {
     public String showDeleteBarangById(
             Model model, @PathVariable long barangId) {
         Barang barang = null;
-        barang = barangServiceStatic.findById(barangId);
+        try {
+            barang = repoBarang.getbyID(barangId);
+        } catch (ResourceNotFoundException ex) {
+            model.addAttribute("errorMessage", "Barang not found");
+        }
         model.addAttribute("allowDelete", true);
         model.addAttribute("barang", barang);
         return "barang";
@@ -117,7 +147,14 @@ public class BarangControllerStatic {
     @PostMapping(value = {"/{barangId}/delete"})
     public String deleteBarangById(
             Model model, @PathVariable long barangId) {
-        barangServiceStatic.deleted(barangId);
-        return "redirect:/v1/view/barang/list";
+        try {
+            serviceBarang.delete(barangId);
+            return "redirect:/v1/view/barang/list";
+        } catch (ResourceNotFoundException ex) {
+            String errorMessage = ex.getMessage();
+            model.addAttribute("errorMessage", errorMessage);
+            return "barang";
+        }
     }
 }
+

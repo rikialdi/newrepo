@@ -22,13 +22,13 @@ public abstract class AbstractDate implements Serializable {
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Jakarta")
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_date", nullable = false, updatable = false)
+    @Column(name = "created_date", nullable = true, updatable = false)
     @CreationTimestamp
     private Date created_date;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Asia/Jakarta")
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_date", nullable = false)
+    @Column(name = "updated_date", nullable = true)
     @UpdateTimestamp
     private Date updated_date;
 
