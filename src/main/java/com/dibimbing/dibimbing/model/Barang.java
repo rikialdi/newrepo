@@ -19,7 +19,7 @@ public class Barang  extends  AbstractDate implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message = "nama is required.")
+    @NotEmpty(message = "Nama is required.")
     @Column(name = "nama", nullable = false, length = 45)
     private String nama;
 
